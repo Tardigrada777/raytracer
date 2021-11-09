@@ -45,6 +45,10 @@ impl Vec3 {
     pub fn dot(v1: &Vec3, v2: &Vec3) -> f32 {
         v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
     }
+
+    pub fn squared_length(self) -> f32 {
+        self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
+    }
 }
 
 impl ops::Add for Vec3 {
