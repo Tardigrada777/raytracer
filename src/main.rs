@@ -72,7 +72,7 @@ fn main() {
         Vec3::new(0.0, 0.0, -1.0),
         0.5,
         Material::Lambertian {
-            albedo: Vec3::new(0.8, 0.3, 0.4),
+            albedo: Vec3::new(0.1, 0.2, 0.5),
         },
     )));
     list.push(Box::new(Sphere::new(
@@ -93,10 +93,12 @@ fn main() {
     list.push(Box::new(Sphere::new(
         Vec3::new(-1.0, 0.0, -1.0),
         0.5,
-        Material::Metal {
-            albedo: Vec3::new(0.8, 0.8, 0.8),
-            fuzz: 1.0,
-        },
+        Material::Dielectric { ref_idx: 1.5 },
+    )));
+    list.push(Box::new(Sphere::new(
+        Vec3::new(-1.0, 0.0, -1.0),
+        -0.45,
+        Material::Dielectric { ref_idx: 1.5 },
     )));
     let world: HittableList = HittableList::new(list);
     println!("P3\n{} {}\n{}", width, height, max_value);
