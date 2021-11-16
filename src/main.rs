@@ -59,12 +59,18 @@ fn random_in_unit_sphere() -> Vec3 {
 }
 
 fn main() {
-    let width = 800;
-    let height = 400;
+    let width = 600;
+    let height = 300;
     let samples = 100;
     let max_value: i32 = 255;
 
-    let camera = Camera::new();
+    let camera = Camera::new(
+        Vec3::new(-2.0, 2.0, 1.0),
+        Vec3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        width as f32 / height as f32,
+    );
     let mut rng = rand::thread_rng();
 
     let mut list: Vec<Box<dyn Hittable>> = Vec::new();

@@ -46,6 +46,16 @@ impl Vec3 {
         v1.e[0] * v2.e[0] + v1.e[1] * v2.e[1] + v1.e[2] * v2.e[2]
     }
 
+    pub fn cross(v1: &Vec3, v2: &Vec3) -> Vec3 {
+        Vec3 {
+            e: [
+                v1.e[1] * v2.e[2] - v1.e[2] * v2.e[1],
+                v1.e[2] * v2.e[0] - v1.e[0] * v2.e[2],
+                v1.e[0] * v2.e[1] - v1.e[1] * v2.e[0],
+            ],
+        }
+    }
+
     pub fn squared_length(self) -> f32 {
         self.e[0] * self.e[0] + self.e[1] * self.e[1] + self.e[2] * self.e[2]
     }
@@ -70,7 +80,7 @@ impl ops::Neg for Vec3 {
 
     fn neg(self) -> Self::Output {
         Vec3 {
-            e: [-self.e[0],-self.e[1],-self.e[2]]
+            e: [-self.e[0], -self.e[1], -self.e[2]],
         }
     }
 }
