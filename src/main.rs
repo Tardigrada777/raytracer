@@ -59,16 +59,97 @@ fn random_in_unit_sphere() -> Vec3 {
 }
 
 fn main() {
-    let width = 600;
-    let height = 300;
+    let mut rng = rand::thread_rng();
+
+    let width = 800;
+    let height = 400;
     let samples = 100;
-    let max_value: i32 = 255;
+    let max_value = 255;
+
+    // setup world
+    let mut list: Vec<Box<dyn Hittable>> = Vec::new();
+    list.push(Box::new(Sphere::new(
+        Vec3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Material::Lambertian {
+            albedo: Vec3::new(0.5, 0.5, 0.5),
+        },
+    )));
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_material = rng.gen::<f32>();
+            let center = Vec3::new(
+                a as f32 + 0.9 * rng.gen::<f32>(),
+                0.2,
+                b as f32 + 0.9 * rng.gen::<f32>(),
+            );
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_material < 0.8 {
+                    // diffuse
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Lambertian {
+                            albedo: Vec3::new(
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                            ),
+                        },
+                    )));
+                } else if choose_material < 0.95 {
+                    // metal
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Metal {
+                            albedo: Vec3::new(
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                                0.5 * (1.0 + rng.gen::<f32>()),
+                            ),
+                            fuzz: 0.5 * 1.0 + rng.gen::<f32>(),
+                        },
+                    )));
+                } else {
+                    // glass
+                    list.push(Box::new(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Dielectric { ref_idx: 1.5 },
+                    )));
+                }
+            }
+        }
+    }
+    list.push(Box::new(Sphere::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        1.0,
+        Material::Dielectric { ref_idx: 1.5 },
+    )));
+    list.push(Box::new(Sphere::new(
+        Vec3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Material::Lambertian {
+            albedo: Vec3::new(0.4, 0.2, 0.1),
+        },
+    )));
+    list.push(Box::new(Sphere::new(
+        Vec3::new(4.0, 1.0, 0.0),
+        1.0,
+        Material::Metal {
+            albedo: Vec3::new(0.7, 0.6, 0.5),
+            fuzz: 0.0,
+        },
+    )));
+    let world: HittableList = HittableList::new(list);
 
     // setup camera
-    let look_from = Vec3::new(3.0, 3.0, 2.0);
-    let look_at = Vec3::new(0.0, 0.0, -1.0);
-    let dist_to_focus = (look_from - look_at).length();
-    let aperture = 2.0;
+    let look_from = Vec3::new(13.0, 2.0, 3.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
+    // let dist_to_focus = (look_from - look_at).length();
+    let dist_to_focus = 10.0;
+    let aperture = 0.1;
     let camera = Camera::new(
         look_from,
         look_at,
@@ -78,42 +159,7 @@ fn main() {
         aperture,
         dist_to_focus,
     );
-    let mut rng = rand::thread_rng();
 
-    let mut list: Vec<Box<dyn Hittable>> = Vec::new();
-    list.push(Box::new(Sphere::new(
-        Vec3::new(0.0, 0.0, -1.0),
-        0.5,
-        Material::Lambertian {
-            albedo: Vec3::new(0.1, 0.2, 0.5),
-        },
-    )));
-    list.push(Box::new(Sphere::new(
-        Vec3::new(0.0, -100.5, -1.0),
-        100.0,
-        Material::Lambertian {
-            albedo: Vec3::new(0.8, 0.8, 0.0),
-        },
-    )));
-    list.push(Box::new(Sphere::new(
-        Vec3::new(1.0, 0.0, -1.0),
-        0.5,
-        Material::Metal {
-            albedo: Vec3::new(0.8, 0.6, 0.2),
-            fuzz: 0.3,
-        },
-    )));
-    list.push(Box::new(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        0.5,
-        Material::Dielectric { ref_idx: 1.5 },
-    )));
-    list.push(Box::new(Sphere::new(
-        Vec3::new(-1.0, 0.0, -1.0),
-        -0.45,
-        Material::Dielectric { ref_idx: 1.5 },
-    )));
-    let world: HittableList = HittableList::new(list);
     println!("P3\n{} {}\n{}", width, height, max_value);
 
     for j in (0..height).rev() {
